@@ -30,12 +30,18 @@ app = Flask(__name__)
 def index():
     return (
         f"SQLAlchemy Homework<br>"
-        f"/station<br>"
-        f"/measurement"
+        # Proof of work
+        f"/api.v1.0/station<br>"
+        f"/api.v1.0/measurement<br>"
+        # Homework tasks
+        f"/api.v1.0/precipitation<br>"
+        # Move stations here
+        f"/api.v1.0/tobs"
+
     )
 
 # Set up route to pull station data
-@app.route("/station")
+@app.route("/api.v1.0/station")
 def station():
     # return "This is the station route"
 
@@ -55,7 +61,7 @@ def station():
     return jsonify(all_stations)
 
 # Set up route to pull measurement data
-@app.route("/measurement")
+@app.route("/api.v1.0/measurement")
 def measurement():
     # return "This is the measurement route"
 
@@ -73,6 +79,55 @@ def measurement():
     all_measurements = list(np.ravel(results))
 
     return jsonify(all_measurements)
+
+# Precipitation route
+@app.route("/api.v1.0/precipitation")
+def precipitation():
+    # Start session
+    session = Session(engine)
+
+    """Return list of precipitation and date"""
+    # Query measurements for prcp and date
+    results = session.query(Measurement.date, Measurement.prcp).all()
+
+    # Close session
+    session.close()
+
+    # Convert data to list to jsonfy
+    date_prcp = list(np.ravel(results))
+
+    return jsonify(date_prcp)
+
+# Tobs route
+@app.route("/api.v1.0/tobs")
+def tobs():
+    # Start session
+    session = Session(engine)
+
+    # """Return list of precipitation and date"""
+    # # Query measurements for prcp and date
+    # results = session.query(Measurement.date, Measurement.prcp).all()
+
+    # # Close session
+    # session.close()
+
+    # # Convert data to list to jsonfy
+    # date_prcp = list(np.ravel(results))
+
+    # return jsonify(date_prcp)
+
+
+    """Return list of tobs data"""
+    # Query tobs data
+    results = session.query(Measurement.date, Measurement.tobs).all()
+
+    # Close session
+    session.close()
+
+    # Convert data to list to jsonify
+    tobs_data = list(np.ravel(results))
+
+    return jsonify(tobs_data)
 
 
 
