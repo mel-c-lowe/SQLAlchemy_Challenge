@@ -34,6 +34,7 @@ def index():
         f"/measurement"
     )
 
+# Set up route to pull station data
 @app.route("/station")
 def station():
     # return "This is the station route"
@@ -52,6 +53,26 @@ def station():
     all_stations = list(np.ravel(results))
 
     return jsonify(all_stations)
+
+# Set up route to pull measurement data
+@app.route("/measurement")
+def measurement():
+    # return "This is the measurement route"
+
+    # Start session to talk to database
+    session = Session(engine)
+
+    """Return list of measurements"""
+    # Query all measurements
+    results = session.query(Measurement.station).all()
+
+    # Close the session
+    session.close()
+
+    # Convert list of tuples into list ot jsonify
+    all_measurements = list(np.ravel(results))
+
+    return jsonify(all_measurements)
 
 
 
