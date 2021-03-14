@@ -78,15 +78,22 @@ def measurement():
 
     """Return list of measurements"""
     # Query all measurements
-    results = session.query(Measurement.station).all()
+    results = session.query(Measurement.station, Measurement.date, Measurement.prcp, Measurement.tobs).all()
 
     # Close the session
     session.close()
 
-    # Convert list of tuples into list ot jsonify
-    all_measurements = list(np.ravel(results))
+    # Create a dictionary from the data in results
+    all_measure = []
+    for station, date, prcp, tobs in results:
+        measure_dict = {}
+        measure_dict["station"] = station
+        measure_dict["date"] = date
+        measure_dict["prcp"] = prcp
+        measure_dict["tobs"] = tobs
+        all_measure.append(measure_dict)
 
-    return jsonify(all_measurements)
+    return jsonify(all_measure)
 
 # Precipitation route
 @app.route("/api.v1.0/precipitation")
@@ -101,10 +108,15 @@ def precipitation():
     # Close session
     session.close()
 
-    # Convert data to list to jsonfy
-    date_prcp = list(np.ravel(results))
+    # Set up a dictionary to hold results
+    precipitation = []
+    for date, prcp in results:
+        precip = {}
+        precip["date"] = date
+        precip["prcp"] = prcp
+        precipitation.append(precip)
 
-    return jsonify(date_prcp)
+    return jsonify(precipitation)
 
 # Tobs route
 @app.route("/api.v1.0/tobs")
@@ -118,9 +130,6 @@ def tobs():
 
     # Close session
     session.close()
-
-    # Convert data to list to jsonify
-    tobs_data = list(np.ravel(results))
 
     return jsonify(tobs_data)
 
