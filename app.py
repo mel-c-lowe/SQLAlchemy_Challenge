@@ -50,13 +50,21 @@ def station():
 
     """Return a list of stations"""
     # Query all stations
-    results = session.query(Station.name).all()
+    results = session.query(Station.station, Station.name).all()
 
     # Close the session
     session.close()
 
+    # Create a dictionary from the data in results
+    all_stations = []
+    for station, name in results:
+        station_dict = {}
+        station_dict["station"] = station
+        station_dict["name"] = name
+        all_stations.append(station_dict)
+
     # Convert list of tuples into a list to jsonify
-    all_stations = list(np.ravel(results))
+    # all_stations = list(np.ravel(results))
 
     return jsonify(all_stations)
 
@@ -103,19 +111,6 @@ def precipitation():
 def tobs():
     # Start session
     session = Session(engine)
-
-    # """Return list of precipitation and date"""
-    # # Query measurements for prcp and date
-    # results = session.query(Measurement.date, Measurement.prcp).all()
-
-    # # Close session
-    # session.close()
-
-    # # Convert data to list to jsonfy
-    # date_prcp = list(np.ravel(results))
-
-    # return jsonify(date_prcp)
-
 
     """Return list of tobs data"""
     # Query tobs data
