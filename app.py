@@ -2,11 +2,12 @@
 
 # Import Dependencies
 import numpy as np
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, desc
 
 from flask import Flask, jsonify
 
@@ -36,7 +37,8 @@ def index():
         # Homework tasks
         f"/api.v1.0/precipitation<br>"
         # Move stations here
-        f"/api.v1.0/tobs"
+        f"/api.v1.0/tobs<br>"
+        f"/api.v1.0/tobs2"
 
     )
 
@@ -132,6 +134,35 @@ def tobs():
     session.close()
 
     return jsonify(tobs_data)
+
+# Tobs data TAKE TWO
+@app.route("/api.v1.0/tobs2")
+def tobs2():
+    # Start the session
+    session = Session(engine)
+
+    # Find the most recent date in the data
+    most_recent = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    most_recent # 2017-08-03
+    query_date = dt.date(2017, 8, 3) - dt.timedelta(days=365)
+
+    # Determine the station with the most observations
+    max_station = session.query(func.count(Measurement.tobs), Measurement.station).\
+                group_by(Measurement.station).\
+                order_by(desc(func.count(Measurement.tobs))).all()
+    max_station = max_station[0][1]
+    max_station
+
+    """Return list of tobs data"""
+    tobs_data = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
+            filter(Measurement.date >= query_date).\
+            filter(Measurement.station == max_station).all()
+    
+    # Close session
+    session.close()
+
+    return jsonify(tobs_data)
+
 
 
 
