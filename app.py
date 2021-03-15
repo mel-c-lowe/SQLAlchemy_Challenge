@@ -38,7 +38,9 @@ def index():
         f"/api.v1.0/precipitation<br>"
         # Move stations here
         f"/api.v1.0/tobs<br>"
-        f"/api.v1.0/tobs2"
+        f"/api.v1.0/tobs2<br>"
+        f"/api.v1.0/<start><br>"
+        f"/api.v1.0/<start./<end>"
 
     )
 
@@ -163,6 +165,27 @@ def tobs2():
 
     return jsonify(tobs_data)
 
+# Stats based on given start date
+@app.route("/api.v1.0/<start>")
+def start(start):
+    # Start session
+    session = Session(engine)
+
+    # Caclculate min, max, and average for temps since given start date, inclusive
+    temp_stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+            filter(Measurement.date >= start).\
+            order_by(Measurement.date.desc()).all()
+    
+    # Close session
+    session.close()
+
+    return jsonify(temp_stats)
+        
+
+
+
+# Stats based on given start/end dates
+# @app.rout("/api.v1.0/<start./<end>")
 
 
 
