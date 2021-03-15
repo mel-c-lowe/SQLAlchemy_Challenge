@@ -40,7 +40,7 @@ def index():
         f"/api.v1.0/tobs<br>"
         f"/api.v1.0/tobs2<br>"
         f"/api.v1.0/<start><br>"
-        f"/api.v1.0/<start./<end>"
+        f"/api.v1.0/<start>/<end>"
 
     )
 
@@ -156,12 +156,21 @@ def tobs2():
     max_station
 
     """Return list of tobs data"""
-    tobs_data = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
+    results = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
             filter(Measurement.date >= query_date).\
             filter(Measurement.station == max_station).all()
     
     # Close session
     session.close()
+
+    # Set up a dictionary to hold results
+    tobs_data = []
+    for station, date, tobs in results:
+        tobs_dict = {}
+        tobs_dict["station"] = station
+        tobs_dict["date"] = date
+        tobs_dict["tobs"] = tobs
+        tobs_data.append(tobs_dict)
 
     return jsonify(tobs_data)
 
@@ -172,12 +181,18 @@ def start(start):
     session = Session(engine)
 
     # Caclculate min, max, and average for temps since given start date, inclusive
-    temp_stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+    results = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
             filter(Measurement.date >= start).\
             order_by(Measurement.date.desc()).all()
     
     # Close session
     session.close()
+
+    # Set up a dictionary to hold results
+    temp_stats = {}
+    temp_stats["min"] = results[0][0]
+    temp_stats["max"] = results[0][1]
+    temp_stats["mean"] = results[0][2]
 
     return jsonify(temp_stats)
         
@@ -185,7 +200,26 @@ def start(start):
 
 
 # Stats based on given start/end dates
-# @app.rout("/api.v1.0/<start./<end>")
+@app.route("/api.v1.0/<start>/<end>")
+def start_end(start, end):
+    # Start session
+    session = Session(engine)
+
+    # Calculate min, max, and average for temps between date range, inclusive
+    temp_stats = session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).\
+            filter(Measurement.date >= start, Measurement.date <= end).\
+            order_by(Measurement.date.desc()).all()
+
+    # Close session
+    session.close()
+
+    # Set up a dictionary to hold results
+    temp_stats = {}
+    temp_stats["min"] = results[0][0]
+    temp_stats["max"] = results[0][1]
+    temp_stats["mean"] = results[0][2]
+
+    return jsonify(temp_stats)
 
 
 
