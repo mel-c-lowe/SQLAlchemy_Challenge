@@ -229,14 +229,6 @@ def start_end(start, end):
 
 
 
-
-
-
-
-
-
-
-
 # Base needed code
 if __name__ == '__main__':
     app.run(debug=True)
