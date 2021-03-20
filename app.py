@@ -37,11 +37,10 @@ def index():
         # Homework tasks
         f"/api.v1.0/precipitation<br>"
         f"/api.v1.0/station<br>"
-        # f"/api.v1.0/tobs<br>"
         f"/api.v1.0/tobs<br>"
         f"Add start date to the end of this route<br>"
         f"/api.v1.0/<start><br>"
-        f"Add start and end date to the end of this route<br>"
+        f"Add start and end date separated by / to the end of this route<br>"
         f"/api.v1.0/<start>/<end>"
 
     )
@@ -125,21 +124,6 @@ def precipitation():
     return jsonify(precipitation)
 
 # Tobs route
-# @app.route("/api.v1.0/tobs")
-# def tobs():
-    # Start session
-    # session = Session(engine)
-
-    # """Return list of tobs data"""
-    # Query tobs data
-    # results = session.query(Measurement.date, Measurement.tobs).all()
-
-    # Close session
-    # session.close()
-
-    # return jsonify(tobs_data)
-
-# Tobs data TAKE TWO
 @app.route("/api.v1.0/tobs")
 def tobs():
     # Start the session
